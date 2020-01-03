@@ -33,10 +33,48 @@ public class Main extends Application {
 
         GridPane root = new GridPane();
 
-        root.setHgap(8);
-        root.setVgap(8);
+        //Styling the scene
+        styleBoard(root);
+        initBoard(root);
+
+        //Creating a scene
+        Scene sc = new Scene(root, 500, 500);
+
+        //Setting the scene
+        s.setScene(sc);
+        s.show();
 
 
+
+    }
+
+
+
+    private boolean borderCell(int i, int j) {
+        return i == 0 || i == mines.length - 1 || j == 0 || j == mines[0].length - 1;
+    }
+
+
+    private static int rand(int min, int max) {
+
+        if (min >= max)
+            throw new IllegalArgumentException("max must be greater than min");
+
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
+    }
+
+    private void buttonPressed(String[] coords) {
+        //This is where I find out the coordinates
+        Point2D point = new Point2D(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
+
+
+        //check if bomb or normal tile, then adapt array
+        if(mines[Integer.parseInt(coords[0])][Integer.parseInt(coords[1])] == -1)
+            gameOver();
+    }
+
+    private void initBoard(GridPane root) {
         //Planting the mines
         for (int i = 0; i < mines.length; i++)
             for (int j = 0; j < mines[0].length; j++)
@@ -59,7 +97,6 @@ public class Main extends Application {
                     }
                     mines[i][j] = mineNumber; //If the current one isn't -1
                 }
-
             }
         }
 
@@ -83,45 +120,16 @@ public class Main extends Application {
                 root.getChildren().add(intermediate);
             }
         }
-
-        /*
-        Figure out which button is pressed
-         */
-
-
-
-        //Creating a scene
-        Scene sc = new Scene(root, 500, 500);
-
-        //Setting the scene
-        s.setScene(sc);
-        s.show();
-
-
-
     }
 
-    private boolean borderCell(int i, int j) {
-        return i == 0 || i == mines.length - 1 || j == 0 || j == mines[0].length - 1;
+    private void gameOver() {
+        // TODO: 03/01/2020 Change the screen to the game over screen
+        System.err.println("Game Over");
     }
 
-
-    private static int rand(int min, int max) {
-
-        if (min >= max) {
-            throw new IllegalArgumentException("max must be greater than min");
-        }
-
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
-    }
-
-    private void buttonPressed(String[] coords) {
-        //This is where I find out the coordinates
-        Point2D point = new Point2D(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
-
-
-        //check if bomb or normal tile, then adapt array
+    private void styleBoard(GridPane root) {
+        root.setHgap(8);
+        root.setVgap(8);
     }
 
 
