@@ -1,19 +1,12 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Parent;
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.util.Random;
@@ -47,7 +40,7 @@ public class Main extends Application {
         //Filling the mines array
         for (int i = 0; i < mines.length; i++) {
             for (int j = 0; j < mines[0].length; j++) {
-                mines[i][j] = rand(0, 9);
+                mines[i][j] = rand(0);
             }
         }
 
@@ -56,6 +49,17 @@ public class Main extends Application {
             for (int j = 0; j < mines[0].length; j++) {
                 Button intermediate = new Button(String.valueOf(mines[i][j]));
                 intermediate.setPrefSize(50, 50);
+
+                intermediate.setId(i + "," + j); // TODO: 03/01/2020 Will this return an error?
+
+                // TODO: 03/01/2020 This is a stilt/workaround solution. A new listener should not be implemented for each button; this is very inefficient
+                intermediate.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        buttonPressed(intermediate.getId().split(",")); //get the id of this mouse that is pressed
+                    }
+                });
+
                 GridPane.setConstraints(intermediate, i, j, 1, 1);
                 root.getChildren().add(intermediate);
             }
@@ -79,14 +83,20 @@ public class Main extends Application {
     }
 
 
-    private static int rand(int min, int max) {
+    private static int rand(int min) {
 
-        if (min >= max) {
+        if (min >= 9)
             throw new IllegalArgumentException("max must be greater than min");
-        }
 
         Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
+        return r.nextInt((9 - min) + 1) + min;
+    }
+
+    private void buttonPressed(String[] coords) {
+        //This is where I find out the coordinates
+        Point2D point = new Point2D(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
+
+        //check if bomb or normal tile, then adapt array
     }
 
 
