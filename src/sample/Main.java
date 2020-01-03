@@ -37,22 +37,41 @@ public class Main extends Application {
         root.setVgap(8);
 
 
-        //Filling the mines array
+        //Planting the mines
+        for (int i = 0; i < mines.length; i++)
+            for (int j = 0; j < mines[0].length; j++)
+                if(rand(0, 8) == 0)
+                    mines[i][j] = -1;
+
+        //Setting the numbers on the board
         for (int i = 0; i < mines.length; i++) {
             for (int j = 0; j < mines[0].length; j++) {
-                mines[i][j] = rand(0);
+
+                int mineNumber = 0;
+
+                //Detecting the number of mines in adjacent cells for every cell
+                if(!borderCell(i, j) && mines[i][j] != -1) { //Ensuring that an ArrayIndexOutOfBoundsException is not thrown
+                    for (int k = -1; k < 2; k++) {
+                        for (int l = -1; l < 2; l++) {
+                            if(mines[i+k][j+l] == -1)
+                                mineNumber++;
+                        }
+                    }
+                    mines[i][j] = mineNumber; //If the current one isn't -1
+                }
+
             }
         }
 
         //Filling the gridpane
         for (int i = 0; i < mines.length; i++) {
             for (int j = 0; j < mines[0].length; j++) {
-                Button intermediate = new Button(String.valueOf(mines[i][j]));
+                Button intermediate = new Button((mines[i][j] == -1) ? "X" : String.valueOf(mines[i][j]));
                 intermediate.setPrefSize(50, 50);
 
-                intermediate.setId(i + "," + j); // TODO: 03/01/2020 Will this return an error?
+                intermediate.setId(i + "," + j);
 
-                // TODO: 03/01/2020 This is a stilt/workaround solution. A new listener should not be implemented for each button; this is very inefficient
+                // TODO: 03/01/2020 This is a stilt/workaround solution. A new listener should not be implemented for each button; this is inefficient
                 intermediate.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
@@ -82,19 +101,25 @@ public class Main extends Application {
 
     }
 
+    private boolean borderCell(int i, int j) {
+        return i == 0 || i == mines.length - 1 || j == 0 || j == mines[0].length - 1;
+    }
 
-    private static int rand(int min) {
 
-        if (min >= 9)
+    private static int rand(int min, int max) {
+
+        if (min >= max) {
             throw new IllegalArgumentException("max must be greater than min");
+        }
 
         Random r = new Random();
-        return r.nextInt((9 - min) + 1) + min;
+        return r.nextInt((max - min) + 1) + min;
     }
 
     private void buttonPressed(String[] coords) {
         //This is where I find out the coordinates
         Point2D point = new Point2D(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
+
 
         //check if bomb or normal tile, then adapt array
     }
