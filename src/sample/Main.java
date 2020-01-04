@@ -20,10 +20,16 @@ public class Main extends Application {
     * Instead, standard GUI tools integrated into JavaFX can be used. This will make the whole application much cleaner and more enjoyable to use
     * A menu should also be added, just like the one you saw in the website 02/01/2020.
     *
-    * The main issue with the development of this game is the fact that I do not know how to initialize the board by drawing the buttons
-    * For this, knowledge of JavaFX will be required*/
+    *   Features that should be added:
+    * >>The numbers on the tiles should be hidden until they are pressed
+    * >>A Game Over screen should be shown to the use when the game is lost
+    * >>The Buttons should be styled. There should be images representing the numbers, and the empty tiles
+    * >>As an extension to this, different themes could be added so that the user can customize the game board
+    * */
 
     private static int[][] mines = new int[10][10];
+
+    private GridPane root = new GridPane(); //Initializing the pane here so it can be accessed in any method
 
     @Override
     public void start(Stage s) throws Exception {
@@ -31,11 +37,13 @@ public class Main extends Application {
         //Adding a title to the game
         s.setTitle("Spooky Minesweeper");
 
-        GridPane root = new GridPane();
 
         //Styling the scene
-        styleBoard(root);
-        initBoard(root);
+        styleBoard();
+        initBoard();
+//
+//        //Initialing the GridPane
+//        root = new GridPane();
 
         //Creating a scene
         Scene sc = new Scene(root, 500, 500);
@@ -44,8 +52,6 @@ public class Main extends Application {
         s.setScene(sc);
         s.show();
 
-
-
     }
 
 
@@ -53,7 +59,6 @@ public class Main extends Application {
     private boolean borderCell(int i, int j) {
         return i == 0 || i == mines.length - 1 || j == 0 || j == mines[0].length - 1;
     }
-
 
     private static int rand(int min, int max) {
 
@@ -64,17 +69,21 @@ public class Main extends Application {
         return r.nextInt((max - min) + 1) + min;
     }
 
-    private void buttonPressed(String[] coords) {
-        //This is where I find out the coordinates
+    private void buttonPressed(String id) {
+
+        //Storing the coordinates of the button
+        String[] coords = id.split(",");
         Point2D point = new Point2D(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
 
+        //Change the text on the button that was pressed
+        ((Button) root.lookup("#" + id)).setText(String.valueOf(mines[Integer.parseInt(coords[0])][Integer.parseInt(coords[1])]));
 
         //check if bomb or normal tile, then adapt array
         if(mines[Integer.parseInt(coords[0])][Integer.parseInt(coords[1])] == -1)
             gameOver();
     }
 
-    private void initBoard(GridPane root) {
+    private void initBoard() {
         //Planting the mines
         for (int i = 0; i < mines.length; i++)
             for (int j = 0; j < mines[0].length; j++)
@@ -100,19 +109,25 @@ public class Main extends Application {
             }
         }
 
-        //Filling the gridpane
+
+        //Filling the GridPane
         for (int i = 0; i < mines.length; i++) {
             for (int j = 0; j < mines[0].length; j++) {
-                Button intermediate = new Button((mines[i][j] == -1) ? "X" : String.valueOf(mines[i][j]));
+
+                //The argument is the text that is displayed on the buttons
+                Button intermediate = new Button((mines[i][j] == -1) ? "X" : "");
+
+                //Sets the preferred size of the tiles
                 intermediate.setPrefSize(50, 50);
 
+                //Sets the ID of the buttons equal to their coordinates (separated by a comma)
                 intermediate.setId(i + "," + j);
 
                 // TODO: 03/01/2020 This is a stilt/workaround solution. A new listener should not be implemented for each button; this is inefficient
                 intermediate.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        buttonPressed(intermediate.getId().split(",")); //get the id of this mouse that is pressed
+                        buttonPressed(intermediate.getId()); //Passes the COORDINATES of the button to buttonPressed()
                     }
                 });
 
@@ -127,11 +142,10 @@ public class Main extends Application {
         System.err.println("Game Over");
     }
 
-    private void styleBoard(GridPane root) {
+    private void styleBoard() {
         root.setHgap(8);
         root.setVgap(8);
     }
-
 
     public static void main(String[] args) {
         launch(args);
