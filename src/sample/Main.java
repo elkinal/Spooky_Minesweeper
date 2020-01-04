@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -25,6 +26,9 @@ public class Main extends Application {
     * >>A Game Over screen should be shown to the use when the game is lost
     * >>The Buttons should be styled. There should be images representing the numbers, and the empty tiles
     * >>As an extension to this, different themes could be added so that the user can customize the game board
+    *
+    * >>Tiles that have no adjacent bomb tiles - "0" tiles - should have the tiles around them revealed if they are pressed
+    *
     * */
 
     private static int[][] mines = new int[10][10];
@@ -87,7 +91,7 @@ public class Main extends Application {
         //Planting the mines
         for (int i = 0; i < mines.length; i++)
             for (int j = 0; j < mines[0].length; j++)
-                if(rand(0, 8) == 0)
+                if(rand(0, 7) == 0)
                     mines[i][j] = -1;
 
         //Setting the numbers on the board
@@ -97,11 +101,16 @@ public class Main extends Application {
                 int mineNumber = 0;
 
                 //Detecting the number of mines in adjacent cells for every cell
-                if(!borderCell(i, j) && mines[i][j] != -1) { //Ensuring that an ArrayIndexOutOfBoundsException is not thrown
+                if(mines[i][j] != -1) { //Ensuring that an ArrayIndexOutOfBoundsException is not thrown
                     for (int k = -1; k < 2; k++) {
                         for (int l = -1; l < 2; l++) {
-                            if(mines[i+k][j+l] == -1)
-                                mineNumber++;
+                            try {
+                                if (mines[i + k][j + l] == -1)
+                                    mineNumber++;
+                            }
+                            catch (ArrayIndexOutOfBoundsException e) {
+                                //Do nothing
+                            }
                         }
                     }
                     mines[i][j] = mineNumber; //If the current one isn't -1
@@ -115,7 +124,8 @@ public class Main extends Application {
             for (int j = 0; j < mines[0].length; j++) {
 
                 //The argument is the text that is displayed on the buttons
-                Button intermediate = new Button((mines[i][j] == -1) ? "X" : "");
+//                Button intermediate = new Button(String.valueOf(mines[i][j]));
+                Button intermediate = new Button();
 
                 //Sets the preferred size of the tiles
                 intermediate.setPrefSize(50, 50);
@@ -127,7 +137,11 @@ public class Main extends Application {
                 intermediate.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        buttonPressed(intermediate.getId()); //Passes the COORDINATES of the button to buttonPressed()
+                        if(mouseEvent.getButton() == MouseButton.PRIMARY) {
+                            buttonPressed(intermediate.getId()); //Passes the COORDINATES of the button to buttonPressed()
+                        }
+                        else if(mouseEvent.getButton() == MouseButton.SECONDARY)
+                            intermediate.setText("F"); // TODO: 04/01/2020 Should the setting of the numbers on the button be done here??> YES IT SHOULD - DO LATER
                     }
                 });
 
